@@ -1,0 +1,12 @@
+T: 300
+EF: 0.3  # Fermi level
+phi: 0
+E0: 0.44 # eV
+E1: 0.75
+
+epsilon: 12
+z: 1
+molar_weight: 391.31 # [g/mol]
+density: 1.52 # [g/cm**3]
+n0: # number of ions per unit volume
+R: 1.2 # nm
