@@ -1,8 +1,9 @@
 T: 300
-EF: 0.3  # Fermi level
+doping: -0.4  # shift of the Fermi level with respect to the center of the band gap
 phi: 0
-E0: 0.44 # eV
-E1: 0.75
+
+E11: 0.879 # band gap [eV] 0.879 for (9,8) CNT
+E22: 1.533 # band gap [eV] 1.533 for (9,8) CNT
 
 epsilon: 12
 z: 1

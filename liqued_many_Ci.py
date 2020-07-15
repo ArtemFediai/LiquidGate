@@ -11,6 +11,7 @@ import yaml
 
 def main():
     #  PARSE
+    # test
     parser = argparse.ArgumentParser()
     parser.add_argument('-i', '--input', type=str,
                         help='input file')
@@ -151,9 +152,9 @@ class CQ:
         self.g0 = 8 / np.sqrt(3) / self.a / np.pi / self.gamma  # prefactor density
         self.T = input['T']
         self.C1 = const.e*const.e/8/const.k/self.T
-        self.E0 = input['E0']*const.eV
-        self.E1 = input['E1']*const.eV
-        self.EF = input['EF']*const.eV
+        self.E0 = input['E11']/2.0*const.eV
+        self.E1 = input['E22']/2.0*const.eV
+        self.EF = input['doping']*const.eV
         self.epsilon = input['epsilon']
         self.phi = input['phi']
 
@@ -190,8 +191,6 @@ class CQ:
     def compute_integral(self):
         #print('Fermi energy:', self.EF)
         I = quad(self.fun, -10.0*const.eV, 10*const.eV, epsabs=1e-14, points=[self.E0, self.E1, -self.E0, -self.E1])[0]
-        print(I)
-        pass
         return I
 
 class Ci:
@@ -216,12 +215,6 @@ class Ci:
 #        self.empiric_ci = 2*np.pi*self.epsilon*const.epsilon_0/np.log(2*self.l_empiric/self.R/np.e)
         self.empiric_ci = 2*np.pi*self.epsilon*const.epsilon_0/scipy.special.k0(1.0/self.l_empiric*self.R)
 
-#def find_V_from_chi(Cq,Ci,):
-#    def F(self,phi):
-#        coef = /C2
-#        return phi - 1/(1 + coef)*V
-
-
 def my_sqrt_m1(x):
     if x >= 0:
         return 1.0/np.sqrt(x)
@@ -231,18 +224,20 @@ def my_sqrt_m1(x):
 def K0(x):
     return scipy.special.k0(x)
 
+
 def K0_approx(x):
     return -np.log(x/2)-1/np.e
+
 
 def plot_phi_vs_Voltage(coef_many_ci, phi_range, l, input):
     plt.figure('phi vs V')
     for i in range(np.size(coef_many_ci,1)):
         plt.plot(coef_many_ci[:,i]*phi_range/const.eV, phi_range/const.eV, label='$l=$ {} nm'.format(l[i]/const.nano))  # voltage(x) vs phi(y)
     plt.ylabel('phi')
-    E0 = input['E0']
-    E1 = input['E1']
+    E0 = input['E11']/2.0
+    E1 = input['E22']/2.0
     I = np.ones(len(phi_range))
-    EF = input['EF']
+    EF = input['doping']
     plt.plot(phi_range/const.eV, E0*I+EF, linestyle=':', color = 'grey')
     plt.plot(phi_range/const.eV, E1*I+EF, linestyle=':', color = 'grey')
     plt.plot(phi_range/const.eV, -E0*I+EF, linestyle=':', color = 'grey' )
