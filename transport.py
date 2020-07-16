@@ -40,7 +40,7 @@ def main():
 
 # test integrate b
     phi_d = 0.5*const.eV
-    phi_g_range = np.linspace(-0.5, 0.5, 100)*const.eV
+    phi_g_range = np.linspace(-0.5, 0.5, 100)*const.eV*0.5
     I = np.zeros(len(phi_d_range))
     for i, phi_g in enumerate(phi_g_range):
         I[i] = quad(fun4int, -4.0 * const.eV, 4 * const.eV, epsabs=1e-20, args=(phi_d, phi_g, my_input))[0]
@@ -51,8 +51,8 @@ def main():
     plt.close()
 
 
-    # test integrate. output charachteristics
-    phi_d_range = np.array([0.01, 0.05, 0.1, 0.5 ])*const.eV
+# test integrate. output charachteristics
+    phi_d_range = np.array([0.01, 0.05, 0.1, 0.4 ])*const.eV
     phi_g_range = np.linspace(-1.5, 1.5, 100)*const.eV
     I = np.zeros([len(phi_d_range), len(phi_g_range)])
     for j, phi_d in enumerate(phi_d_range):
@@ -64,6 +64,9 @@ def main():
     plt.ylabel('current, A')
     plt.legend()
     plt.show()
+
+
+
 
 def Fermi(energy, phi_d, input):
     # phi: potential [eV]. potential on source: 0
@@ -82,7 +85,7 @@ def fun4int(energy, phi_d, phi_g, input):
     trans = transmission(energy, phi_g, input)
     drain_flow = trans*Fermi(energy,phi_d, input)
     source_flow = trans*Fermi(energy, 0, input)
-    return g0/const.eV*(drain_flow - source_flow)
+    return np.abs(g0/const.eV*(drain_flow - source_flow))
 
 
 def transmission(energy, phi_g, my_input):

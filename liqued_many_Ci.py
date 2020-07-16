@@ -22,8 +22,9 @@ def main():
     #  WORK
 ########################################################################################################################
 # Cq
+    phi = 0
     my_cq = CQ(my_input)
-    my_cq.integrand()
+    my_cq.integrand(phi)
     my_func = my_cq.fun
     my_dos = my_cq.dos
     #
@@ -31,7 +32,7 @@ def main():
     result_dos = np.zeros(100)
     Espace = np.linspace(-2,2,100)
     for i, energy in enumerate(Espace):
-        result[i] = (my_func(energy*const.eV))
+        result[i] = (my_func(energy*const.eV, phi))
         result_dos[i] = my_dos(energy*const.eV)
 #    plt.plot(Espace, result_dos)
 #    plt.plot(Espace, result)
@@ -48,8 +49,8 @@ def main():
     phi_range = np.linspace(phi_min, phi_max, n_phi)*const.eV
     cq = np.zeros(n_phi)
     for i, phi in enumerate(phi_range):
-        my_cq.phi = phi  # change the attribute
-        cq[i] = my_cq.compute_integral()
+        #my_cq.phi = phi  # change the attribute
+        cq[i] = my_cq.compute_integral(phi)
 
     print(cq)
     plt.plot(phi_range/const.eV, cq/const.atto*const.micro)
@@ -111,8 +112,8 @@ def main():
     n_phi = len(Ugs)
     cq = np.zeros(n_phi) # quantum capacitance
     for i, phi in enumerate(phi_range):
-        my_cq.phi = phi  # change the attribute
-        cq[i] = my_cq.compute_integral()
+        #my_cq.phi = phi  # change the attribute
+        cq[i] = my_cq.compute_integral(phi)
 
     l = 2*const.nano  # screening length
     my_ci.dummi_ci(l)  # my_ci.empiric_ci is assinged to a new value!
@@ -156,7 +157,7 @@ class CQ:
         self.E1 = input['E22']/2.0*const.eV
         self.EF = input['doping']*const.eV
         self.epsilon = input['epsilon']
-        self.phi = input['phi']
+        #self.phi = input['phi']
 
     def g(self, E):
         E0 = self.E0
@@ -168,29 +169,29 @@ class CQ:
         g = g0/2*np.abs(E)*( first_mode + second_mode ) # density of states
         return g
 
-    def fth(self, E):
+    def fth(self, E, phi):
         EF = self.EF
         kB = const.k
         T = self.T
-        phi = self.phi
-        ee = (E-EF+phi)/(2*kB*T)
+        #phi = self.phi
+        ee = (E-EF-phi)/(2*kB*T)  # important
 
         def sech(x):
             return 2.0/(np.exp(x) + np.exp(-x))
         return 1/const.k/T/4*sech(ee)*sech(ee)
 
-    def integrand(self):
+    def integrand(self,phi):
         e = const.e
-        def func(E):
+        def func(E ,phi):
             g = self.g(E)
-            fth = self.fth(E)
+            fth = self.fth(E, phi)
             return e**2 * g * fth
         self.fun = func  # function to integrate
         self.dos = self.g
 
-    def compute_integral(self):
+    def compute_integral(self, phi):
         #print('Fermi energy:', self.EF)
-        I = quad(self.fun, -10.0*const.eV, 10*const.eV, epsabs=1e-14, points=[self.E0, self.E1, -self.E0, -self.E1])[0]
+        I = quad(self.fun, -10.0*const.eV, 10*const.eV, epsabs=1e-14, points=[self.E0, self.E1, -self.E0, -self.E1], args=phi)[0]
         return I
 
 class Ci:
